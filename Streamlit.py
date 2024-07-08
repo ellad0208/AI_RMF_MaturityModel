@@ -159,7 +159,7 @@ def processAnswers(name):
 def topic_radar_chart(name):
     fig1 = go.Figure()
     # Adding trace for the NIST Pillars
-    title_name = name + " Aggregation by NIST Pillars"
+    title_name = name + " Scores by NIST Pillars"
     fig1.add_trace(go.Scatterpolar(
         r=[ss['govern_average'], ss['map_average'], ss['measure_average'], ss['manage_average'], ss['govern_average']],
         theta=['GOVERN', 'MAP', 'MEASURE', 'MANAGE', 'GOVERN'],
@@ -180,7 +180,7 @@ def topic_radar_chart(name):
 
     fig2 = go.Figure()
     # Adding trace for the NIST Pillars
-    title_name2 = name + " Aggregation by Responsibility Dimensions"
+    title_name2 = name + " Scores by Responsibility Dimensions"
     fig2.add_trace(go.Scatterpolar(
     r=[ss['ecology_average'], ss['security_average'], ss['accuracy_average'], ss['privacy_average'], ss['human_oversight_average'],
        ss['ip_copyright_average'], ss['fairness_average'], ss['ecology_average']],
@@ -349,11 +349,8 @@ if granularity and stages:
             submitted = st.form_submit_button("Submit")
         if submitted: 
             fig1, fig2 = processTopicAnswers(system_name)
-            col1, col2 = st.columns(2)
-            with col1:
-                st.plotly_chart(fig1)
-            with col2:
-                st.plotly_chart(fig2)
+            st.plotly_chart(fig1)
+            st.plotly_chart(fig2)
             if system_name:
                 topic_csv = save_results_to_csv(system_name)
                 filename = system_name + "_" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".csv"
@@ -405,11 +402,8 @@ if granularity and stages:
             submitted = st.form_submit_button("Submit")
         if submitted:
             fig1, fig2 = processStatementAnswers(system_name)
-            col1, col2 = st.columns(2)
-            with col1:
-                st.plotly_chart(fig1)
-            with col2:
-                st.plotly_chart(fig2)
+            st.plotly_chart(fig1)
+            t.plotly_chart(fig2)
             if system_name:
                 topic_csv = save_results_to_csv(system_name)
                 filename = system_name + "_" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".csv"
