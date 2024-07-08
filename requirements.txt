@@ -1,1 +1,5 @@
 streamlit
+streamlit_nested_layout
+plotly.graph_objects
+pandas
+datetime
