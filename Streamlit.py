@@ -403,7 +403,7 @@ if granularity and stages:
         if submitted:
             fig1, fig2 = processStatementAnswers(system_name)
             st.plotly_chart(fig1)
-            t.plotly_chart(fig2)
+            st.plotly_chart(fig2)
             if system_name:
                 topic_csv = save_results_to_csv(system_name)
                 filename = system_name + "_" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".csv"
