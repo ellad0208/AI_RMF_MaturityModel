@@ -183,8 +183,8 @@ def topic_radar_chart(name):
     title_name2 = name + " Aggregation by Responsibility Dimensions"
     fig2.add_trace(go.Scatterpolar(
         r=[ss['ecology_average'], ss['security_average'], ss['accuracy_average'], ss['privacy_average'], ss['human_oversight_average'],
-        ss['ip_copyright_average'], ss['accuracy_average']],
-        theta=['Ecology', 'Security', 'Accuracy', 'Privacy', 'Human Oversight', 'IP & Copyright', "Accuracy"],
+        ss['ip_copyright_average'], ss['fairness_average']],
+        theta=['Ecology', 'Security', 'Accuracy', 'Privacy', 'Human Oversight', 'IP & Copyright', "Fairness"],
         fill='toself',
         name='Responsibility Dimensions'
     ))
