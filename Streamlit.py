@@ -300,7 +300,7 @@ if granularity and stages:
     if granularity == "Topics (up to 9 questions)":
         nl(1)
         #FAQ
-        with st.expander(label = ":blue[If this is your first time using the assessment tool, please consider reading these guidelines.]"):
+        with st.expander(label = ":red[If this is your first time using the assessment tool, please consider reading these guidelines.]"):
             with st.expander("What metrics am I evaluating?"):
                 "When scoring, each evaluated statement should be ranked on a scale of 1-5, where 1 is the lowest and 5 is the highest, based on how well it satisfies three metrics:"
                 st.markdown("*1. Coverage of RMF subcategories:* the scoring of the topic statement should reflect the coverage of all the individual statements included in that topic. All substatements are listed below the topic statement.")
@@ -366,7 +366,7 @@ if granularity and stages:
     elif granularity == "Statements (up to 27 questions)":
         nl(1)
         #FAQ
-        with st.expander(label = ":blue[If this is your first time using the assessment tool, please consider reading these guidelines.]"):
+        with st.expander(label = ":red[If this is your first time using the assessment tool, please consider reading these guidelines.]"):
             with st.expander("What metrics am I evaluating?"):
                 "When scoring, each evaluated statement should be ranked on a scale of 1-5, where 1 is the lowest and 5 is the highest, based on how well it satisfies three metrics:"
                 st.markdown("*1. Coverage of RMF subcategories:* the scoring of the topic statement should reflect the coverage of all the individual statements included in that topic. All substatements are listed below the topic statement.")
