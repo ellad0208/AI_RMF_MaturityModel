@@ -1,5 +1,5 @@
 streamlit
 streamlit_nested_layout
-plotly.graph_objects
+plotly
 pandas
 datetime
