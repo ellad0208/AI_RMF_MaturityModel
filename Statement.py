@@ -1,3 +1,4 @@
+"""Defines the statement class."""
 class Statement:
     def __init__(self, sentence, topic, name, responsibility_dimension, pillar, robust_eval, diverse_eval, rationale):
         self.sentence = sentence  # string

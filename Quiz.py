@@ -1,11 +1,12 @@
-from Statement import Statement
-from Topic import Topic
+"""Instantiate topic and statement objects and create lists of both."""
+from statement import Statement
+from topic import Topic
 
-def populatePillarsList(topic):
+def populate_pillars_list(topic):
     for statement in topic.statements:
         topic.pillars_list.extend(statement.pillar)
 
-def populateDimensionsList(topic):
+def populate_dimensions_list(topic):
     for statement in topic.statements:
         topic.dimensions_list.append(statement.responsibility_dimension)
 
@@ -114,7 +115,7 @@ statement2c = Statement(
     sentence="We document AI legal requirements that apply to this AI system.",
     topic=2,
     name = "2c",
-    responsibility_dimension="AP & Copyright",
+    responsibility_dimension="IP_Copyright",
     pillar=["GOV"],
     robust_eval="",
     diverse_eval="",
@@ -284,7 +285,7 @@ statement4k = Statement(
     sentence="We regularly evaluate and document third-party issues, such as IP infringement, related to this AI system.",
     topic=4,
     name = "4k",
-    responsibility_dimension="IP & Copyright",
+    responsibility_dimension="IP_Copyright",
     pillar=["MEA"],
     robust_eval="",
     diverse_eval="",
@@ -494,7 +495,7 @@ statement7h = Statement(
     sentence="We ensure this AI’s third-party impacts, such as IP infringement, meet our standards.",
     topic=7,
     name = "7h",
-    responsibility_dimension="IP & Copyright",
+    responsibility_dimension="IP_Copyright",
     pillar=["GOV"],
     robust_eval="",
     diverse_eval="",
@@ -691,8 +692,8 @@ topic9 = Topic(
 
 topics = [topic1, topic2, topic3, topic4, topic5, topic6, topic7, topic8, topic9]
 for topic in topics:
-    populatePillarsList(topic)
-    populateDimensionsList(topic)
+    populate_pillars_list(topic)
+    populate_dimensions_list(topic)
 
 # Creating a list of all statements
 statements = [

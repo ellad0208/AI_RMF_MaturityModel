@@ -1,3 +1,4 @@
+"""Defines the topic class."""
 class Topic:
     def __init__(self, rationale, evaluation, sentence, stage, statements, name):
         self.rationale = rationale  # string
