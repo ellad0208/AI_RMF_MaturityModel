@@ -9,6 +9,22 @@ from datetime import datetime
 from quiz import topics, statements
 from processing import *
 
+# Session state variables
+ss = st.session_state
+keys_to_initialize = [
+    'current_quiz', 'user_answers', 'user_rationales',
+    'gov_average', 'map_average', 'mea_average', 'man_average',
+    'ecology_average', 'ip_copyright_average', 'privacy_average',
+    'security_average', 'accuracy_average', 'fairness_average',
+    'human_oversight_average'
+]
+for key in keys_to_initialize:
+    if key not in ss:
+        if key in ['user_answers', 'user_rationales', 'current_quiz']:
+            ss[key] = []  # Initialize as empty lists for storing multiple values
+        else:
+            ss[key] = 0  # Initialize other keys as necessary
+
 # Replace with your credentials file path
 CREDENTIALS_FILE = 'credentials.json'
 
