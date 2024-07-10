@@ -204,10 +204,18 @@ def save_results_to_csv(system_name):
     # Loop through the current quiz to collect the results
     for idx, topic in enumerate(ss['current_quiz']):
         topic_name = topic.name
-        score = ss['user_answers'][idx]
-        rationale = ss['user_rationales'][idx]
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+        if idx < len(ss['user_answers']) and idx < len(ss['user_rationales']):
+            score = ss['user_answers'][idx]
+            rationale = ss['user_rationales'][idx]
+        else:
+            # Handle the case where the index is out of range
+            score = None
+            rationale = None
+            st.warning(f"Index {idx} is out of range for user answers or rationales.")
+            continue  # Skip to the next iteration if out of range
+
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         # Append a dictionary of the results
         data.append({
             "Date": timestamp,
