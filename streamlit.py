@@ -318,9 +318,7 @@ if granularity and stages:
                     rationale_key = str(topic.name) + "_rationale"
                     st.text_area(label= "Explanation/Rationale", key = rationale_key, help = "Evidence includes information about what organizations do, about what they don’t do, and reports of lack of evidence. For example, evidence may include describing artifacts that indicate that the company is engaged in the relevant activities or the evaluator’s first-hand experience in the company. E.g., they may describe which company documents contain the relevant information and how detailed that information is, the evaluator’s first-hand knowledge about the execution of the relevant tasks, and so on. Evidence may also include indications that certain activities are not performed, which may happen, for example, when company documents imply that these activities are outside of the company’s current scope. Further, evidence discussions may also include pointing out a lack of evidence. We ask evaluators to note in their comments a distinction between lack of any evidence and presence of evidence to the contrary.")
             submitted = st.form_submit_button("Submit")
-            done = False
         if submitted: 
-            done = True
             # if system_name:
             #     topic_csv = save_results_to_csv(system_name)
             #     filename = system_name + "_" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".csv"
@@ -330,15 +328,14 @@ if granularity and stages:
             fig1, fig2 = process_topic_answers(system_name)
             st.plotly_chart(fig1)
             st.plotly_chart(fig2)
-        if done:
-            with st.form(key="feedback_form"):
-                st.write("Your personal data will only be shared with the creator of this web app (Ella Duus) and the maturity model study authors (Ravit Dotan, Borhane Blili-Hamelin, Ravi Madhavan, Jeanna Matthews, and Joshua Scarpino) to facilitate the improvement of the maturity model. Your aggregated anonymized feedback data may be shared in an academic context.")
-                name = st.text_input("Please enter your name (optional)")
-                email = st.text_input("Please enter your email (optional)")
-                feedback = st.text_area("Please give your feedback on this maturity model")
-                submit = st.form_submit_button("Submit")
-            if submit:
-                save_feedback_data(name, email, feedback)
+        with st.form(key="feedback_form"):
+            st.write("Your personal data will only be shared with the creator of this web app (Ella Duus) and the maturity model study authors (Ravit Dotan, Borhane Blili-Hamelin, Ravi Madhavan, Jeanna Matthews, and Joshua Scarpino) to facilitate the improvement of the maturity model. Your aggregated anonymized feedback data may be shared in an academic context.")
+            name = st.text_input("Please enter your name (optional)")
+            email = st.text_input("Please enter your email (optional)")
+            feedback = st.text_area("Please give your feedback on this maturity model")
+            submit = st.form_submit_button("Submit")
+        if submit:
+            save_feedback_data(name, email, feedback)
         
         
     #Statement-level assessment
@@ -382,9 +379,7 @@ if granularity and stages:
                     rationale_key = str(topic.name) + "_rationale"
                     st.text_area(label= "Explanation/Rationale", key = rationale_key, help = "Evidence includes information about what organizations do, about what they don’t do, and reports of lack of evidence. For example, evidence may include describing artifacts that indicate that the company is engaged in the relevant activities or the evaluator’s first-hand experience in the company. E.g., they may describe which company documents contain the relevant information and how detailed that information is, the evaluator’s first-hand knowledge about the execution of the relevant tasks, and so on. Evidence may also include indications that certain activities are not performed, which may happen, for example, when company documents imply that these activities are outside of the company’s current scope. Further, evidence discussions may also include pointing out a lack of evidence. We ask evaluators to note in their comments a distinction between lack of any evidence and presence of evidence to the contrary.")
             submitted = st.form_submit_button("Submit")
-            done = False
         if submitted: 
-            done = True
             # if system_name:
             #     topic_csv = save_results_to_csv(system_name)
             #     filename = system_name + "_" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".csv"
@@ -394,13 +389,12 @@ if granularity and stages:
             fig1, fig2 = process_topic_answers(system_name)
             st.plotly_chart(fig1)
             st.plotly_chart(fig2)
-        if done:
-            with st.form(key="feedback_form"):
-                st.write("Your personal data will only be shared with the creator of this web app (Ella Duus) and the maturity model study authors (Ravit Dotan, Borhane Blili-Hamelin, Ravi Madhavan, Jeanna Matthews, and Joshua Scarpino) to facilitate the improvement of the maturity model. Your aggregated anonymized feedback data may be shared in an academic context.")
-                name = st.text_input("Please enter your name (optional)")
-                email = st.text_input("Please enter your email (optional)")
-                feedback = st.text_area("Please give your feedback on this maturity model")
-                submit = st.form_submit_button("Submit")
-            if submit:
-                save_feedback_data(name, email, feedback)
+        with st.form(key="feedback_form"):
+            st.write("Your personal data will only be shared with the creator of this web app (Ella Duus) and the maturity model study authors (Ravit Dotan, Borhane Blili-Hamelin, Ravi Madhavan, Jeanna Matthews, and Joshua Scarpino) to facilitate the improvement of the maturity model. Your aggregated anonymized feedback data may be shared in an academic context.")
+            name = st.text_input("Please enter your name (optional)")
+            email = st.text_input("Please enter your email (optional)")
+            feedback = st.text_area("Please give your feedback on this maturity model")
+            submit = st.form_submit_button("Submit")
+        if submit:
+            save_feedback_data(name, email, feedback)
             
