@@ -3,17 +3,26 @@ import streamlit as st
 import streamlit_nested_layout
 import plotly.graph_objects as go
 import pandas as pd
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 from quiz import topics, statements
 from processing import *
 
-# Define the scope and credentials
-# scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-# credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+# Replace with your credentials file path
+CREDENTIALS_FILE = 'credentials.json'
 
-# Authorize and access Google Sheets
-# client = gspread.authorize(credentials)
-# sheet = client.open('NIST_AI_RMF_MaturityModel_Feedback').sheet1 
+# Replace with your Google Sheet URL
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1jnvgjUBggHgx5lVTD8Sc4AbBVez3-XoJn5thg2A589A/edit?gid=0#gid=0"
+
+def save_feedback_data(name, email, feedback):
+    gc = gspread.service_account(filename=CREDENTIALS_FILE)
+    spreadsheet = gc.open_by_url(SHEET_URL)
+    sheet = spreadsheet.sheet1  # Get the first sheet
+    data = [name, email, feedback]
+    st.write(data)
+    sheet.append_row(data)
+    st.success("Feedback submitted successfully.")
 
 #Page introduction
 st.set_page_config(page_title="NIST AI Maturity Assessment", page_icon=":control_knobs:", layout="centered", initial_sidebar_state="auto", menu_items=None)
@@ -82,7 +91,7 @@ if granularity and stages:
         #form to collect answers
         with st.form(key = "topic_form", border = False):
             #Topic template
-            system_name = st.text_input("Label your system:")
+            system_name = st.text_input(":red[Label your system:]")
             for topic in ss['current_quiz']:
                 with st.container(border = True):
                     st.markdown(f"##### Topic {topic.name}: {topic.sentence}")
@@ -93,16 +102,28 @@ if granularity and stages:
                     rationale_key = str(topic.name) + "_rationale"
                     st.text_area(label= "Explanation/Rationale", key = rationale_key, help = "Evidence includes information about what organizations do, about what they don’t do, and reports of lack of evidence. For example, evidence may include describing artifacts that indicate that the company is engaged in the relevant activities or the evaluator’s first-hand experience in the company. E.g., they may describe which company documents contain the relevant information and how detailed that information is, the evaluator’s first-hand knowledge about the execution of the relevant tasks, and so on. Evidence may also include indications that certain activities are not performed, which may happen, for example, when company documents imply that these activities are outside of the company’s current scope. Further, evidence discussions may also include pointing out a lack of evidence. We ask evaluators to note in their comments a distinction between lack of any evidence and presence of evidence to the contrary.")
             submitted = st.form_submit_button("Submit")
+        done = False
         if submitted: 
-            fig1, fig2 = process_topic_answers(system_name)
-            st.plotly_chart(fig1)
-            st.plotly_chart(fig2)
+            done = True
             if system_name:
                 topic_csv = save_results_to_csv(system_name)
                 filename = system_name + "_" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".csv"
                 st.download_button("Download CSV of Results", data=topic_csv, file_name=filename, mime='text/csv')
             else:
                 st.warning("Please label your system to download the results.")
+            fig1, fig2 = process_topic_answers(system_name)
+            st.plotly_chart(fig1)
+            st.plotly_chart(fig2)
+            
+        if done:
+            with st.form(key = "feedback_form"):
+                st.write("Your personal data will only be shared with the creator of this web app (Ella Duus) and the maturity model study authors (Ravit Dotan, Borhane Blili-Hamelin, Ravi Madhavan, Jeanna Matthews, and Joshua Scarpino) to facilitate the improvement of the maturity model. Your aggregated anonymized feedback data may be shared in an academic context")
+                name = st.text_input("Please enter your name (optional)")
+                email = st.text_input("Please enter your email (optional)")
+                feedback = st.text_area("Please give your feedback on this maturity model")
+                submit = st.form_submit_button("Submit")
+            if submit:
+                save_feedback_data(name, email, feedback)
         
         
     #Statement-level assessment
@@ -131,7 +152,7 @@ if granularity and stages:
                 st.write("Providing evidence encourages accountability in the evaluation process because it requires the evaluator to base the scoring on information that others can assess, too. Moreover, requiring evaluators to provide evidence also encourages accountability on the part of the evaluated companies, because it encourages them to ensure that such evidence is available. Companies can do so, for example, by documenting key processes and their outcomes. Providing evidence for scoring improves the usefulness of the evaluation because it contextualizes and explains the reason for the score. Numbers on their own don’t offer much information about the company, what they currently do, what is missing, and how they can improve. The evidence an evaluator cites helps others understand how the evaluator interprets the scoring guidelines and what a given score means to that evaluator. This can help companies understand what they are doing right and how to do better.")
         nl(1)
         with st.form(key = "statement_form", border = False):
-            system_name = st.text_input("Label your system:")
+            system_name = st.text_input(":red[Label your system:]")
             for topic in ss['current_quiz']:
                 with st.container(border = True):
                     st.markdown(f"##### Topic {topic.name}: {topic.sentence}")
@@ -146,21 +167,25 @@ if granularity and stages:
                     rationale_key = str(topic.name) + "_rationale"
                     st.text_area(label= "Explanation/Rationale", key = rationale_key, help = "Evidence includes information about what organizations do, about what they don’t do, and reports of lack of evidence. For example, evidence may include describing artifacts that indicate that the company is engaged in the relevant activities or the evaluator’s first-hand experience in the company. E.g., they may describe which company documents contain the relevant information and how detailed that information is, the evaluator’s first-hand knowledge about the execution of the relevant tasks, and so on. Evidence may also include indications that certain activities are not performed, which may happen, for example, when company documents imply that these activities are outside of the company’s current scope. Further, evidence discussions may also include pointing out a lack of evidence. We ask evaluators to note in their comments a distinction between lack of any evidence and presence of evidence to the contrary.")
             submitted = st.form_submit_button("Submit")
+        done = False
         if submitted:
-            fig1, fig2 = process_statement_answers(system_name)
-            st.plotly_chart(fig1)
-            st.plotly_chart(fig2)
             if system_name:
                 topic_csv = save_results_to_csv(system_name)
                 filename = system_name + "_" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".csv"
                 st.download_button("Download CSV of Results", data=topic_csv, file_name=filename, mime='text/csv')
             else:
                 st.warning("Please label your system to download the results.")
-            # with st.form(key = "feedback_form", label = "Your personal data will only be shared with the creator of this web app (Ella Duus) and the maturity model study authors (Ravit Dotan, Borhane Blili-Hamelin, Ravi Madhavan, Jeanna Matthews, and Joshua Scarpino) to facilitate the improvement of the maturity model. Your aggregated anonymized feedback data may be shared in an academic context"):
-            #     name = st.text_input("Please enter your name (optional)")
-            #     email = st.text_input("Please enter your email (optional)")
-            #     feedback = st.text_area("Please give your feedback on this maturity model")
-            #     submitted = st.form_submit_button("Submit")
-            # row = [name,email, feedback]
-            # sheet.append_row(row)
+            done = True
+            fig1, fig2 = process_statement_answers(system_name)
+            st.plotly_chart(fig1)
+            st.plotly_chart(fig2)
+        if done:
+            with st.form(key = "feedback_form"):
+                st.write("Your personal data will only be shared with the creator of this web app (Ella Duus) and the maturity model study authors (Ravit Dotan, Borhane Blili-Hamelin, Ravi Madhavan, Jeanna Matthews, and Joshua Scarpino) to facilitate the improvement of the maturity model. Your aggregated anonymized feedback data may be shared in an academic context")
+                name = st.text_input("Please enter your name (optional)")
+                email = st.text_input("Please enter your email (optional)")
+                feedback = st.text_area("Please give your feedback on this maturity model")
+                submit = st.form_submit_button("Submit")
+            if submit:
+                save_feedback_data(name, email, feedback)
 
