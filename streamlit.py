@@ -3,250 +3,9 @@ import streamlit as st
 import streamlit_nested_layout
 import plotly.graph_objects as go
 import pandas as pd
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 from quiz import topics, statements
 from processing import *
-
-# Session state variables
-ss = st.session_state
-keys_to_initialize = [
-    'current_quiz', 'user_answers', 'user_rationales',
-    'gov_average', 'map_average', 'mea_average', 'man_average',
-    'ecology_average', 'ip_copyright_average', 'privacy_average',
-    'security_average', 'accuracy_average', 'fairness_average',
-    'human_oversight_average'
-]
-for key in keys_to_initialize:
-    if key not in ss:
-        if key in ['user_answers', 'user_rationales', 'current_quiz']:
-            ss[key] = []  # Initialize as empty lists for storing multiple values
-        else:
-            ss[key] = 0  # Initialize other keys as necessary
-
-# Line breaks between containers
-def nl(num_of_lines):
-    for i in range(num_of_lines):
-        st.write(" ")
-
-
-# Select appropriate topics based on user-selected topics
-def filter_topics_by_stages(topics, stages):
-    relevant_topics = []
-    if "Planning and Design" in stages:
-        relevant_topics.extend(topics[:3])
-    if "Data collection and model building" in stages:
-        relevant_topics.extend(topics[3:6])
-    if "Deployment" in stages:
-        relevant_topics.extend(topics[6:])
-    return relevant_topics
-
-
-# Extract info from form answers
-def process_statement_answers(name):
-    for topic in ss['current_quiz']:
-        scores = []
-        # Aggregate scores from all three metrics
-        coverage_key = f"coverage_{topic.name}"
-        robustness_key = f"robustness_{topic.name}"
-        inputdiversity_key = f"inputdiversity_{topic.name}"
-        scores.extend([ss[coverage_key],
-                       ss[robustness_key],
-                       ss[inputdiversity_key]])
-     
-        # Aggregate rationales
-        rationale_key = f"{topic.name}_rationale"
-        ss['user_rationales'].append(ss[rationale_key])
-
-        # Calculate total score
-        score = sum(3 if rating == "High"
-                    else (2 if rating == "Medium" else 1) for rating in scores)
-
-        # Select appropriate conversion based on raw score
-        if score == 3:
-            ss['user_answers'].append(1)
-        elif score in (4, 5):
-            ss['user_answers'].append(2)
-        elif score in (6, 7):
-            ss['user_answers'].append(3)
-        elif score == 8:
-            ss['user_answers'].append(4)
-        elif score == 9:
-            ss['user_answers'].append(5)
- 
-    return process_answers(name)
-
-
-# Aggregate scores/rationales
-def process_topic_answers(name):
-    for topic in ss['current_quiz']:
-        ss['user_answers'].append(ss[topic.name])
-        rationale_key = str(topic.name) + "_rationale"
-        ss['user_rationales'].append(ss[rationale_key])
-    return process_answers(name)
-
-
-def process_answers(name):
-    # Initialize dictionaries to store answers and counts
-    pillar_answers = {
-        "MAP": 0,
-        "MEA": 0,
-        "MAN": 0,
-        "GOV": 0
-    }
-    dimension_answers = {
-        "Ecology": 0,
-        "IP_Copyright": 0,
-        "Accuracy": 0,
-        "Fairness": 0,
-        "Human Oversight": 0,
-        "Security": 0,
-        "Privacy": 0
-    }
-    pillar_counts = {
-        "MAP": 0,
-        "MEA": 0,
-        "MAN": 0,
-        "GOV": 0
-    }
-    dimension_counts = {
-        "Ecology": 0,
-        "IP_Copyright": 0,
-        "Accuracy": 0,
-        "Fairness": 0,
-        "Human Oversight": 0,
-        "Security": 0,
-        "Privacy": 0
-    }
-
-    # Iterate over topics in current_quiz
-    for idx, topic in enumerate(ss['current_quiz']):
-        # Separate scores into NIST pillars
-        for pillar in topic.pillars_list:
-            pillar_answers[pillar] += ss['user_answers'][idx]
-            pillar_counts[pillar] += 1
-
-        # Separate scores into risk dimensions
-        for dimension in topic.dimensions_list:
-            dimension_answers[dimension] += ss['user_answers'][idx]
-            dimension_counts[dimension] += 1
-
-    # Calculate averages and update ss averages
-    for pillar in pillar_answers:
-        if pillar_counts[pillar] != 0:
-            average = pillar_answers[pillar] / pillar_counts[pillar]
-            ss[f'{pillar.lower()}_average'] += average
-
-    for dimension in dimension_answers:
-        if dimension_counts[dimension] != 0:
-            average = dimension_answers[dimension] / dimension_counts[dimension]
-            ss[f'{dimension.lower().replace(" ", "_")}_average'] += average
-
-    return topic_radar_chart(name)
-
-
-# Create radar chart
-def topic_radar_chart(name):
-    fig1 = go.Figure()
-    # Adding trace for the NIST Pillars
-    title_name = name + " Scores by NIST Pillars"
-    fig1.add_trace(go.Scatterpolar(
-        r=[ss['gov_average'], ss['map_average'], ss['mea_average'],
-            ss['man_average'], ss['gov_average']],
-        theta=['GOVERN', 'MAP', 'MEASURE', 'MANAGE', 'GOVERN'],
-        fill='toself',
-        name='NIST Pillars'
-    ))
-    # Update layout of the radar chart
-    fig1.update_layout(
-        polar=dict(
-            radialaxis=dict(
-                visible=True,
-                range=[1, 5]
-            ),
-        ),
-        showlegend=False,
-        title=title_name
-    )
-
-    fig2 = go.Figure()
-    # Adding trace for the NIST Pillars
-    title_name2 = name + " Scores by Responsibility Dimensions"
-    fig2.add_trace(go.Scatterpolar(
-        r=[ss['ecology_average'], ss['security_average'], ss['accuracy_average'],
-            ss['privacy_average'], ss['human_oversight_average'],
-            ss['ip_copyright_average'], ss['fairness_average'], ss['ecology_average']],
-        theta=['Ecology', 'Security', 'Accuracy', 'Privacy', 'Human Oversight',
-               'IP & Copyright', 'Fairness', 'Ecology'],
-        fill='toself',
-        name='Responsibility Dimensions'
-    ))
-    # Update layout of the radar chart
-    fig2.update_layout(
-        polar=dict(
-            radialaxis=dict(
-                visible=True,
-                range=[1, 5]
-            ),
-        ),
-        showlegend=False,
-        title=title_name2
-    )
-    return fig1, fig2
-
-
-# Aggregate responses and save to csv
-def save_results_to_csv(system_name):
-    # Create a list to hold the data
-    data = []
-
-    # Loop through the current quiz to collect the results
-    for idx, topic in enumerate(ss['current_quiz']):
-        topic_name = topic.name
-
-        if idx < len(ss['user_answers']) and idx < len(ss['user_rationales']):
-            score = ss['user_answers'][idx]
-            rationale = ss['user_rationales'][idx]
-        else:
-            # Handle the case where the index is out of range
-            score = None
-            rationale = None
-            st.warning(f"Index {idx} is out of range for user answers or rationales.")
-            continue  # Skip to the next iteration if out of range
-
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        # Append a dictionary of the results
-        data.append({
-            "Date": timestamp,
-            "System Name": system_name,
-            "Topic Name": topic_name,
-            "Score": score,
-            "Rationale": rationale
-        })
-
-    # Create a DataFrame from the list of dictionaries
-    df = pd.DataFrame(data)
-
-    # Convert the DataFrame to a CSV string
-    csv = df.to_csv(index=False)
-    return csv
-
-
-# Replace with your credentials file path
-CREDENTIALS_FILE = 'credentials.json'
-
-# Replace with your Google Sheet URL
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1jnvgjUBggHgx5lVTD8Sc4AbBVez3-XoJn5thg2A589A/edit?gid=0#gid=0"
-
-def save_feedback_data(name, email, feedback):
-    gc = gspread.service_account(filename=CREDENTIALS_FILE)
-    spreadsheet = gc.open_by_url(SHEET_URL)
-    sheet = spreadsheet.sheet1  # Get the first sheet
-    data = [name, email, feedback]
-    st.write(data)
-    sheet.append_row(data)
-    st.success("Feedback submitted successfully.")
 
 #Page introduction
 st.set_page_config(page_title="NIST AI Maturity Assessment", page_icon=":control_knobs:", layout="centered", initial_sidebar_state="auto", menu_items=None)
@@ -315,7 +74,7 @@ if granularity and stages:
         #form to collect answers
         with st.form(key = "topic_form", border = False):
             #Topic template
-            system_name = st.text_input(":red[Label your system:]")
+            system_name = st.text_input("Label your system:")
             for topic in ss['current_quiz']:
                 with st.container(border = True):
                     st.markdown(f"##### Topic {topic.name}: {topic.sentence}")
@@ -326,28 +85,16 @@ if granularity and stages:
                     rationale_key = str(topic.name) + "_rationale"
                     st.text_area(label= "Explanation/Rationale", key = rationale_key, help = "Evidence includes information about what organizations do, about what they don’t do, and reports of lack of evidence. For example, evidence may include describing artifacts that indicate that the company is engaged in the relevant activities or the evaluator’s first-hand experience in the company. E.g., they may describe which company documents contain the relevant information and how detailed that information is, the evaluator’s first-hand knowledge about the execution of the relevant tasks, and so on. Evidence may also include indications that certain activities are not performed, which may happen, for example, when company documents imply that these activities are outside of the company’s current scope. Further, evidence discussions may also include pointing out a lack of evidence. We ask evaluators to note in their comments a distinction between lack of any evidence and presence of evidence to the contrary.")
             submitted = st.form_submit_button("Submit")
-        done = False
         if submitted: 
-            done = True
+            fig1, fig2 = process_topic_answers(system_name)
+            st.plotly_chart(fig1)
+            st.plotly_chart(fig2)
             if system_name:
                 topic_csv = save_results_to_csv(system_name)
                 filename = system_name + "_" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".csv"
                 st.download_button("Download CSV of Results", data=topic_csv, file_name=filename, mime='text/csv')
             else:
                 st.warning("Please label your system to download the results.")
-            fig1, fig2 = process_topic_answers(system_name)
-            st.plotly_chart(fig1)
-            st.plotly_chart(fig2)
-            
-        if done:
-            with st.form(key = "feedback_form"):
-                st.write("Your personal data will only be shared with the creator of this web app (Ella Duus) and the maturity model study authors (Ravit Dotan, Borhane Blili-Hamelin, Ravi Madhavan, Jeanna Matthews, and Joshua Scarpino) to facilitate the improvement of the maturity model. Your aggregated anonymized feedback data may be shared in an academic context")
-                name = st.text_input("Please enter your name (optional)")
-                email = st.text_input("Please enter your email (optional)")
-                feedback = st.text_area("Please give your feedback on this maturity model")
-                submit = st.form_submit_button("Submit")
-            if submit:
-                save_feedback_data(name, email, feedback)
         
         
     #Statement-level assessment
@@ -376,7 +123,7 @@ if granularity and stages:
                 st.write("Providing evidence encourages accountability in the evaluation process because it requires the evaluator to base the scoring on information that others can assess, too. Moreover, requiring evaluators to provide evidence also encourages accountability on the part of the evaluated companies, because it encourages them to ensure that such evidence is available. Companies can do so, for example, by documenting key processes and their outcomes. Providing evidence for scoring improves the usefulness of the evaluation because it contextualizes and explains the reason for the score. Numbers on their own don’t offer much information about the company, what they currently do, what is missing, and how they can improve. The evidence an evaluator cites helps others understand how the evaluator interprets the scoring guidelines and what a given score means to that evaluator. This can help companies understand what they are doing right and how to do better.")
         nl(1)
         with st.form(key = "statement_form", border = False):
-            system_name = st.text_input(":red[Label your system:]")
+            system_name = st.text_input("Label your system:")
             for topic in ss['current_quiz']:
                 with st.container(border = True):
                     st.markdown(f"##### Topic {topic.name}: {topic.sentence}")
@@ -391,25 +138,13 @@ if granularity and stages:
                     rationale_key = str(topic.name) + "_rationale"
                     st.text_area(label= "Explanation/Rationale", key = rationale_key, help = "Evidence includes information about what organizations do, about what they don’t do, and reports of lack of evidence. For example, evidence may include describing artifacts that indicate that the company is engaged in the relevant activities or the evaluator’s first-hand experience in the company. E.g., they may describe which company documents contain the relevant information and how detailed that information is, the evaluator’s first-hand knowledge about the execution of the relevant tasks, and so on. Evidence may also include indications that certain activities are not performed, which may happen, for example, when company documents imply that these activities are outside of the company’s current scope. Further, evidence discussions may also include pointing out a lack of evidence. We ask evaluators to note in their comments a distinction between lack of any evidence and presence of evidence to the contrary.")
             submitted = st.form_submit_button("Submit")
-        done = False
         if submitted:
+            fig1, fig2 = process_statement_answers(system_name)
+            st.plotly_chart(fig1)
+            st.plotly_chart(fig2)
             if system_name:
                 topic_csv = save_results_to_csv(system_name)
                 filename = system_name + "_" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".csv"
                 st.download_button("Download CSV of Results", data=topic_csv, file_name=filename, mime='text/csv')
             else:
                 st.warning("Please label your system to download the results.")
-            done = True
-            fig1, fig2 = process_statement_answers(system_name)
-            st.plotly_chart(fig1)
-            st.plotly_chart(fig2)
-        if done:
-            with st.form(key = "feedback_form"):
-                st.write("Your personal data will only be shared with the creator of this web app (Ella Duus) and the maturity model study authors (Ravit Dotan, Borhane Blili-Hamelin, Ravi Madhavan, Jeanna Matthews, and Joshua Scarpino) to facilitate the improvement of the maturity model. Your aggregated anonymized feedback data may be shared in an academic context")
-                name = st.text_input("Please enter your name (optional)")
-                email = st.text_input("Please enter your email (optional)")
-                feedback = st.text_area("Please give your feedback on this maturity model")
-                submit = st.form_submit_button("Submit")
-            if submit:
-                save_feedback_data(name, email, feedback)
-
