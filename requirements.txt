@@ -3,3 +3,5 @@ streamlit_nested_layout
 plotly
 pandas
 datetime
+gspread
+oauth2client.service_account
