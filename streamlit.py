@@ -1,8 +1,6 @@
 """Streamlit front end."""
 import streamlit as st
 import streamlit_nested_layout
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime
@@ -10,12 +8,12 @@ from quiz import topics, statements
 from processing import *
 
 # Define the scope and credentials
-scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+# scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+# credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
 
 # Authorize and access Google Sheets
-client = gspread.authorize(credentials)
-sheet = client.open('NIST_AI_RMF_MaturityModel_Feedback').sheet1 
+# client = gspread.authorize(credentials)
+# sheet = client.open('NIST_AI_RMF_MaturityModel_Feedback').sheet1 
 
 #Page introduction
 st.set_page_config(page_title="NIST AI Maturity Assessment", page_icon=":control_knobs:", layout="centered", initial_sidebar_state="auto", menu_items=None)
@@ -158,11 +156,11 @@ if granularity and stages:
                 st.download_button("Download CSV of Results", data=topic_csv, file_name=filename, mime='text/csv')
             else:
                 st.warning("Please label your system to download the results.")
-            with st.form(key = "feedback_form", label = "Your personal data will only be shared with the creator of this web app (Ella Duus) and the maturity model study authors (Ravit Dotan, Borhane Blili-Hamelin, Ravi Madhavan, Jeanna Matthews, and Joshua Scarpino) to facilitate the improvement of the maturity model. Your aggregated anonymized feedback data may be shared in an academic context"):
-                name = st.text_input("Please enter your name (optional)")
-                email = st.text_input("Please enter your email (optional)")
-                feedback = st.text_area("Please give your feedback on this maturity model")
-                submitted = st.form_submit_button("Submit")
-            row = [name,email, feedback]
-            sheet.append_row(row)
+            # with st.form(key = "feedback_form", label = "Your personal data will only be shared with the creator of this web app (Ella Duus) and the maturity model study authors (Ravit Dotan, Borhane Blili-Hamelin, Ravi Madhavan, Jeanna Matthews, and Joshua Scarpino) to facilitate the improvement of the maturity model. Your aggregated anonymized feedback data may be shared in an academic context"):
+            #     name = st.text_input("Please enter your name (optional)")
+            #     email = st.text_input("Please enter your email (optional)")
+            #     feedback = st.text_area("Please give your feedback on this maturity model")
+            #     submitted = st.form_submit_button("Submit")
+            # row = [name,email, feedback]
+            # sheet.append_row(row)
 
