@@ -86,15 +86,15 @@ if granularity and stages:
                     st.text_area(label= "Explanation/Rationale", key = rationale_key, help = "Evidence includes information about what organizations do, about what they don’t do, and reports of lack of evidence. For example, evidence may include describing artifacts that indicate that the company is engaged in the relevant activities or the evaluator’s first-hand experience in the company. E.g., they may describe which company documents contain the relevant information and how detailed that information is, the evaluator’s first-hand knowledge about the execution of the relevant tasks, and so on. Evidence may also include indications that certain activities are not performed, which may happen, for example, when company documents imply that these activities are outside of the company’s current scope. Further, evidence discussions may also include pointing out a lack of evidence. We ask evaluators to note in their comments a distinction between lack of any evidence and presence of evidence to the contrary.")
             submitted = st.form_submit_button("Submit")
         if submitted: 
-            fig1, fig2 = process_topic_answers(system_name)
-            st.plotly_chart(fig1)
-            st.plotly_chart(fig2)
             if system_name:
                 topic_csv = save_results_to_csv(system_name)
                 filename = system_name + "_" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".csv"
                 st.download_button("Download CSV of Results", data=topic_csv, file_name=filename, mime='text/csv')
             else:
                 st.warning("Please label your system to download the results.")
+            fig1, fig2 = process_topic_answers(system_name)
+            st.plotly_chart(fig1)
+            st.plotly_chart(fig2)
         
         
     #Statement-level assessment
@@ -139,12 +139,13 @@ if granularity and stages:
                     st.text_area(label= "Explanation/Rationale", key = rationale_key, help = "Evidence includes information about what organizations do, about what they don’t do, and reports of lack of evidence. For example, evidence may include describing artifacts that indicate that the company is engaged in the relevant activities or the evaluator’s first-hand experience in the company. E.g., they may describe which company documents contain the relevant information and how detailed that information is, the evaluator’s first-hand knowledge about the execution of the relevant tasks, and so on. Evidence may also include indications that certain activities are not performed, which may happen, for example, when company documents imply that these activities are outside of the company’s current scope. Further, evidence discussions may also include pointing out a lack of evidence. We ask evaluators to note in their comments a distinction between lack of any evidence and presence of evidence to the contrary.")
             submitted = st.form_submit_button("Submit")
         if submitted:
-            fig1, fig2 = process_statement_answers(system_name)
-            st.plotly_chart(fig1)
-            st.plotly_chart(fig2)
             if system_name:
                 topic_csv = save_results_to_csv(system_name)
                 filename = system_name + "_" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".csv"
                 st.download_button("Download CSV of Results", data=topic_csv, file_name=filename, mime='text/csv')
             else:
                 st.warning("Please label your system to download the results.")
+            fig1, fig2 = process_statement_answers(system_name)
+            st.plotly_chart(fig1)
+            st.plotly_chart(fig2)
+            
