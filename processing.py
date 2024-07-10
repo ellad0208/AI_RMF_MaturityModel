@@ -177,32 +177,32 @@ def topic_radar_chart(name):
 
 
 # Aggregate responses and save to csv
-def save_results_to_csv(system_name):
-    # Create a list to hold the data
-    data = []
+# def save_results_to_csv(system_name):
+#     # Create a list to hold the data
+#     data = []
 
-    # Loop through the current quiz to collect the results
-    for idx, topic in enumerate(ss['current_quiz']):
-        topic_name = topic.name
-        score = ss['user_answers'][idx]
-        rationale = ss['user_rationales'][idx]
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+#     # Loop through the current quiz to collect the results
+#     for idx, topic in enumerate(ss['user_answers']):
+#         topic_name = topic.name
+#         score = ss['user_answers'][idx]
+#         rationale = ss['user_rationales'][idx]
+#         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        # Append a dictionary of the results
-        data.append({
-            "Date": timestamp,
-            "System Name": system_name,
-            "Topic Name": topic_name,
-            "Score": score,
-            "Rationale": rationale
-        })
+#         # Append a dictionary of the results
+#         data.append({
+#             "Date": timestamp,
+#             "System Name": system_name,
+#             "Topic Name": topic_name,
+#             "Score": score,
+#             "Rationale": rationale
+#         })
 
-    # Create a DataFrame from the list of dictionaries
-    df = pd.DataFrame(data)
+#     # Create a DataFrame from the list of dictionaries
+#     df = pd.DataFrame(data)
 
-    # Convert the DataFrame to a CSV string
-    csv = df.to_csv(index=False)
-    return csv
+#     # Convert the DataFrame to a CSV string
+#     csv = df.to_csv(index=False)
+#     return csv
 
 
 # Session state variables
